@@ -1,6 +1,7 @@
 #!/usr/bin/env lua
 
 function read_config(config, prefix)
+  config = config or {}
 	prefix = prefix or ""
 
 	source_files = source_files or ""
@@ -48,23 +49,23 @@ else
 	return
 end
 
-if (not config._main) then
-  print("ERROR: please pick a main class")
-  return
-end
-
 read_config(config)
 
 mkdir("out")
 
-mode = ...
+mode, main = ...
 mode = mode or "compile"
 
 if (mode == "compile") then
 	compile_command = "scalac -d out -classpath '" .. jar_dependencies .. "'" .. source_files
 	os.execute(compile_command)
 elseif (mode == "run") then
-	run_command = "scala -cp out " .. config._main
+  if (not main) then
+    print("ERROR: please pick a class to run")
+    return
+  end
+  
+	run_command = "scala -cp out " .. main
 	os.execute(run_command)
 else
   print("ERROR: " .. mode .. " is not a valid mode")
